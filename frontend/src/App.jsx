@@ -32,8 +32,10 @@ function App() {
           <p>No users</p>
         ) : (
           <ul style={{ listStyle: "none", padding: 0 }}>
-            {users.map(u => (
-              <li key={u.id}>{u.name} — {u.role}</li>
+            {users.map((u) => (
+              <li key={u.id}>
+                {u.name} — {u.role}
+              </li>
             ))}
           </ul>
         )}

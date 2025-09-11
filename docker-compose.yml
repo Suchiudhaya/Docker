@@ -2,8 +2,8 @@ version: "3.9"
 services:
   frontend:
     build:
-    context: .       # project root instead of ./frontend
-    dockerfile: frontend/Dockerfile
+      context: .       # project root instead of ./frontend
+      dockerfile: frontend/Dockerfile
     ports:
       - "8080:80"
     depends_on:

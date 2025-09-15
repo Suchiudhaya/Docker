@@ -1,8 +1,10 @@
+version: "3.9"
+
 services:
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .                     # use project root
+      dockerfile: frontend/Dockerfile
     ports:
       - "8080:80"
     depends_on:

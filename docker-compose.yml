@@ -1,7 +1,6 @@
+version: '3.8'
+
 services:
-  # -------------------------------
-  # Frontend React App
-  # -------------------------------
   frontend:
     build:
       context: ./frontend
@@ -15,9 +14,6 @@ services:
       REACT_APP_USERS_API: http://users-service:5001
       REACT_APP_STATUS_API: http://status-service:5002
 
-  # -------------------------------
-  # Users Service (Python)
-  # -------------------------------
   users-service:
     build:
       context: ./users-service
@@ -25,4 +21,13 @@ services:
     ports:
       - "5001:5001"
     environment:
-      DATABASE_URL: "postgres://user:pass@db:5432/u_
+      DATABASE_URL: "postgres://user:pass@db:5432/usersdb"
+
+  status-service:
+    build:
+      context: ./status-service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      DATABASE_URL: "postgres://user:pass@db:5432/statusdb"

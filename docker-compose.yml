@@ -1,18 +1,17 @@
-services:
-  frontend:
-    image: docker_frontend:latest
-    ports:
-      - "8080:80"
-    depends_on:
-      - users-service
-      - status-service
+frontend:
+  image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+  ports:
+    - "8080:80"
+  depends_on:
+    - users-service
+    - status-service
 
-  users-service:
-    image: docker_users-service:latest
-    ports:
-      - "5001:5001"
+users-service:
+  image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/users-service:latest
+  ports:
+    - "5001:5001"
 
-  status-service:
-    image: docker_status-service:latest
-    ports:
-      - "5002:5002"
+status-service:
+  image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/status-service:latest
+  ports:
+    - "5002:5002"

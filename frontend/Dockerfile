@@ -1,17 +1,17 @@
 FROM node:18 AS build
 WORKDIR /app
 
-# copy package.json files
-COPY frontend/package.json frontend/package-lock.json ./
+# Copy package files (relative to context)
+COPY package*.json ./
 RUN npm install
 
-# copy all frontend code
-COPY frontend/. .
+# Copy rest of the source
+COPY . .
 RUN npm run build
 
-# nginx stage
+# Serve with nginx
 FROM nginx:stable-alpine
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build /usr/share/nginx/html
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

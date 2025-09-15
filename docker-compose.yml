@@ -1,7 +1,8 @@
-
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
     depends_on:
@@ -9,11 +10,15 @@ services:
       - status-service
 
   users-service:
-    build: ./services/users-service
+    build:
+      context: ./services/users-service
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
 
   status-service:
-    build: ./services/status-service
+    build:
+      context: ./services/status-service
+      dockerfile: Dockerfile
     ports:
       - "5002:5002"

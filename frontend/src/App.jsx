@@ -18,7 +18,7 @@ function App() {
   return (
     <div style={{ fontFamily: "Arial", textAlign: "center", marginTop: "40px" }}>
       <h1>🚀 DevOps React + Nginx + Microservices</h1>
-      <p>Running on AWS EC2 (3.90.120.45)</p>
+      <p>AWS CLOUD (EC2+ECR+LOAD BALANCER)</p>
 
       <section style={{ marginTop: "24px" }}>
         <h2>Service Status</h2>

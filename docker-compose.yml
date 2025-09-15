@@ -1,32 +1,20 @@
+version: "3.9"
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     ports:
       - "8080:80"
     depends_on:
       - users-service
       - status-service
-    environment:
-      REACT_APP_USERS_API: http://users-service:5001
-      REACT_APP_STATUS_API: http://status-service:5002
 
   users-service:
-    build:
-      context: ./users-service
-      dockerfile: Dockerfile
+    build: ./services/users-service
     ports:
       - "5001:5001"
-    environment:
-      DATABASE_URL: "postgres://user:pass@db:5432/usersdb"
 
   status-service:
-    build:
-      context: ./status-service
-      dockerfile: Dockerfile
+    build: ./services/status-service
     ports:
       - "5002:5002"
-    environment:
-      DATABASE_URL: "postgres://user:pass@db:5432/statusdb"

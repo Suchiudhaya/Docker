@@ -2,9 +2,7 @@ version: "3.9"
 
 services:
   frontend:
-    build:
-      context: .                     # use project root
-      dockerfile: frontend/Dockerfile
+    image: docker_frontend:latest
     ports:
       - "8080:80"
     depends_on:
@@ -12,15 +10,11 @@ services:
       - status-service
 
   users-service:
-    build:
-      context: ./services/users-service
-      dockerfile: Dockerfile
+    image: docker_users-service:latest
     ports:
       - "5001:5001"
 
   status-service:
-    build:
-      context: ./services/status-service
-      dockerfile: Dockerfile
+    image: docker_status-service:latest
     ports:
       - "5002:5002"

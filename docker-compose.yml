@@ -1,21 +1,24 @@
 services:
   frontend:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
-    environment:
-      REACT_APP_USERS_API: http://users-service:5001
-      REACT_APP_STATUS_API: http://status-service:5002
     depends_on:
       - users-service
       - status-service
 
   users-service:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/users-service:latest
+    build:
+      context: ./services/users-service
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
 
   status-service:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/status-service:latest
+    build:
+      context: ./services/status-service
+      dockerfile: Dockerfile
     ports:
       - "5002:5002"

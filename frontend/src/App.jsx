@@ -5,16 +5,15 @@ function App() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
-    fetch("http://3.90.120.45:8080/api/users")
-      .then(res => res.json())
-      .then(data => setUsers(data))
-      .catch(() => setUsers([]));
+  fetch("/users")
+    .then(res => res.json())
+    .then(data => setUsers(data));
 
-    fetch("http://3.90.120.45:8080/api/status")
-      .then(res => res.json())
-      .then(data => setStatus(data))
-      .catch(() => setStatus(null));
-  }, []);
+  fetch("/status")
+    .then(res => res.json())
+    .then(data => setStatus(data.message));
+}, []);
+
 
   return (
     <div style={{ fontFamily: "Arial", textAlign: "center", marginTop: "40px" }}>

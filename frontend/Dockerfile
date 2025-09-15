@@ -1,17 +1,14 @@
+# Stage 1: Build React app
 FROM node:18 AS build
 WORKDIR /app
-
-# Copy package files (relative to context)
 COPY package*.json ./
 RUN npm install
-
-# Copy rest of the source
 COPY . .
 RUN npm run build
 
-# Serve with nginx
+# Stage 2: Nginx server
 FROM nginx:stable-alpine
 COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf   # ✅ path relative to ./frontend
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

@@ -6,43 +6,67 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
-      ECR_REGISTRY: 171961474458.dkr.ecr.us-east-1.amazonaws.com
-      FRONTEND_TAG: frontend-v1
-      USERS_TAG: users-v1
-      STATUS_TAG: status-v1
-      NGINX_TAG: nginx-v1
-
     steps:
-      - name: Checkout repository
+      # Checkout repo
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
+      # Configure AWS credentials
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # Login to Amazon ECR
       - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build & Push Docker Images
+        id: login-ecr
         run: |
-          docker build -t frontend ./frontend
-          docker build -t users-service ./services/users-service
-          docker build -t status-service ./services/status-service
-          docker build -t nginx-service ./nginx
+          aws ecr get-login-password --region us-east-1 | \
+          docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
-          docker tag frontend:latest $ECR_REGISTRY/frontend:$FRONTEND_TAG
-          docker tag users-service:latest $ECR_REGISTRY/services:$USERS_TAG
-          docker tag status-service:latest $ECR_REGISTRY/services:$STATUS_TAG
-          docker tag nginx-service:latest $ECR_REGISTRY/nginx-service:$NGINX_TAG
+      # Build and push Frontend
+      - name: Build & Push Frontend
+        run: |
+          docker build -t frontend:latest ./frontend
+          docker tag frontend:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
 
-          docker push $ECR_REGISTRY/frontend:$FRONTEND_TAG
-          docker push $ECR_REGISTRY/services:$USERS_TAG
-          docker push $ECR_REGISTRY/services:$STATUS_TAG
-          docker push $ECR_REGISTRY/nginx-service:$NGINX_TAG
+      # Build and push Users Service
+      - name: Build & Push Users Service
+        run: |
+          docker build -t users-service:latest ./services/users-service
+          docker tag users-service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/services:users-latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/services:users-latest
+
+      # Build and push Status Service
+      - name: Build & Push Status Service
+        run: |
+          docker build -t status-service:latest ./services/status-service
+          docker tag status-service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/services:status-latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/services:status-latest
+
+      # Build and push Nginx Service
+      - name: Build & Push Nginx
+        run: |
+          docker build -t nginx-service:latest ./nginx
+          docker tag nginx-service:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/nginx-service:latest
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/nginx-service:latest
+
+      # Deploy on EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/Docker
+            aws ecr get-login-password --region us-east-1 | \
+            docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+            sudo docker-compose pull
+            sudo docker-compose up -d --force-recreate

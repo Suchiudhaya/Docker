@@ -31,21 +31,18 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, Tag, and Push Docker Images
+      - name: Build, Tag & Push Docker Images
         run: |
-          # Build images
           docker build -t frontend ./frontend
           docker build -t users-service ./services/users-service
           docker build -t status-service ./services/status-service
           docker build -t nginx-service ./nginx
 
-          # Tag images with version
           docker tag frontend:latest $ECR_REGISTRY/frontend:$FRONTEND_TAG
           docker tag users-service:latest $ECR_REGISTRY/services:$USERS_TAG
           docker tag status-service:latest $ECR_REGISTRY/services:$STATUS_TAG
           docker tag nginx-service:latest $ECR_REGISTRY/nginx-service:$NGINX_TAG
 
-          # Push images to ECR
           docker push $ECR_REGISTRY/frontend:$FRONTEND_TAG
           docker push $ECR_REGISTRY/services:$USERS_TAG
           docker push $ECR_REGISTRY/services:$STATUS_TAG
@@ -54,18 +51,18 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_HOST }}            # EC2 Public IP or DNS
+          host: ${{ secrets.EC2_HOST }}           # EC2 Public DNS/IP, NO http/https
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}         # private key content
           script: |
             cd /home/ubuntu/Docker
 
-            # Login to ECR on EC2
+            # Login to ECR
             aws ecr get-login-password --region us-east-1 | \
             docker login --username AWS --password-stdin 171961474458.dkr.ecr.us-east-1.amazonaws.com
 
-            # Pull latest images from ECR
+            # Pull latest images
             sudo docker-compose pull
 
-            # Recreate containers with latest images
+            # Recreate containers
             sudo docker-compose up -d --force-recreate

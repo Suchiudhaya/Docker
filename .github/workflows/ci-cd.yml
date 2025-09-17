@@ -30,7 +30,7 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, Tag & Push Docker Images
+      - name: Build & Push Docker Images
         run: |
           docker build -t frontend ./frontend
           docker build -t users-service ./services/users-service

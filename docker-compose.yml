@@ -22,3 +22,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5002:5002"
+
+    nginx-service:   # 🔹 New Service
+    build:
+      context: ./nginx-service
+    image: docker_nginx-service:latest
+    ports:
+      - "8080:80"

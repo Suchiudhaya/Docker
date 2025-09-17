@@ -2,14 +2,22 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      ECR_REGISTRY: 171961474458.dkr.ecr.us-east-1.amazonaws.com
+      FRONTEND_TAG: frontend-v1
+      USERS_TAG: users-v1
+      STATUS_TAG: status-v1
+      NGINX_TAG: nginx-v1
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
@@ -23,47 +31,41 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, Tag & Push Docker Images
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      - name: Build, Tag, and Push Docker Images
         run: |
-          # Optionally increment version (v1, v2, v3...) or overwrite same tag
-
-          # Frontend
+          # Build images
           docker build -t frontend ./frontend
-          docker tag frontend:latest $ECR_REGISTRY/frontend:frontend-v1
-          docker push $ECR_REGISTRY/frontend:frontend-v1
-
-          # Users Service
           docker build -t users-service ./services/users-service
-          docker tag users-service:latest $ECR_REGISTRY/services:users-v1
-          docker push $ECR_REGISTRY/services:users-v1
-
-          # Status Service
           docker build -t status-service ./services/status-service
-          docker tag status-service:latest $ECR_REGISTRY/services:status-v1
-          docker push $ECR_REGISTRY/services:status-v1
-
-          # Nginx
           docker build -t nginx-service ./nginx
-          docker tag nginx-service:latest $ECR_REGISTRY/nginx-service:nginx-v1
-          docker push $ECR_REGISTRY/nginx-service:nginx-v1
 
-      - name: Deploy on EC2
+          # Tag images with version
+          docker tag frontend:latest $ECR_REGISTRY/frontend:$FRONTEND_TAG
+          docker tag users-service:latest $ECR_REGISTRY/services:$USERS_TAG
+          docker tag status-service:latest $ECR_REGISTRY/services:$STATUS_TAG
+          docker tag nginx-service:latest $ECR_REGISTRY/nginx-service:$NGINX_TAG
+
+          # Push images to ECR
+          docker push $ECR_REGISTRY/frontend:$FRONTEND_TAG
+          docker push $ECR_REGISTRY/services:$USERS_TAG
+          docker push $ECR_REGISTRY/services:$STATUS_TAG
+          docker push $ECR_REGISTRY/nginx-service:$NGINX_TAG
+
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
+          host: ${{ secrets.EC2_HOST }}            # EC2 Public IP or DNS
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}         # private key content
           script: |
             cd /home/ubuntu/Docker
 
-            # Re-login to ECR
+            # Login to ECR on EC2
             aws ecr get-login-password --region us-east-1 | \
             docker login --username AWS --password-stdin 171961474458.dkr.ecr.us-east-1.amazonaws.com
 
-            # Pull latest images (overwrite existing containers)
+            # Pull latest images from ECR
             sudo docker-compose pull
 
-            # Recreate containers
+            # Recreate containers with latest images
             sudo docker-compose up -d --force-recreate

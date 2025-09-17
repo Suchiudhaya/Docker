@@ -1,44 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
 function App() {
   const [users, setUsers] = useState([]);
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState({});
 
   useEffect(() => {
-  fetch("/users")
-    .then(res => res.json())
-    .then(data => setUsers(data));
+    fetch('/users')
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(err => console.error(err));
 
-  fetch("/status")
-    .then(res => res.json())
-    .then(data => setStatus(data.message));
-}, []);
-
+    fetch('/status')
+      .then(res => res.json())
+      .then(data => setStatus(data))
+      .catch(err => console.error(err));
+  }, []);
 
   return (
-    <div style={{ fontFamily: "Arial", textAlign: "center", marginTop: "40px" }}>
-      <h1>🚀 DevOps React + Nginx + Microservices</h1>
-      <p>AWS CLOUD (EC2+ECR+LOAD BALANCER)</p>
-
-      <section style={{ marginTop: "24px" }}>
-        <h2>Service Status</h2>
-        <pre>{status ? JSON.stringify(status, null, 2) : "Loading..."}</pre>
-      </section>
-
-      <section style={{ marginTop: "24px" }}>
-        <h2>Users</h2>
-        {users.length === 0 ? (
-          <p>No users</p>
-        ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {users.map((u) => (
-              <li key={u.id}>
-                {u.name} — {u.role}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+    <div>
+      <h1>DevOps React App</h1>
+      <h2>Status</h2>
+      <pre>{JSON.stringify(status, null, 2)}</pre>
+      <h2>Users</h2>
+      <ul>
+        {users.map(u => <li key={u.id}>{u.name}</li>)}
+      </ul>
     </div>
   );
 }

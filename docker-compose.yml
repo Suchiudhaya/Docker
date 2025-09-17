@@ -1,33 +1,45 @@
-version: "3.8"
-
 services:
+  # Frontend React App (built, no ports exposed directly)
   frontend:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/frontend:frontend-v1
-    container_name: frontend
-    ports:
-      - "3000:80"
+    build: ./frontend
+    container_name: docker-frontend
+    networks:
+      - app-network
     depends_on:
       - users-service
       - status-service
 
+  # Users Service
   users-service:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/services:users-v1
-    container_name: users-service
+    build: ./services/users-service
+    container_name: docker-users-service
+    networks:
+      - app-network
     ports:
       - "5001:5001"
 
+  # Status Service
   status-service:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/services:status-v1
-    container_name: status-service
+    build: ./services/status-service
+    container_name: docker-status-service
+    networks:
+      - app-network
     ports:
       - "5002:5002"
 
+  # Nginx Reverse Proxy (entrypoint for LB)
   nginx-service:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/nginx-service:nginx-v1
-    container_name: nginx-service
+    build: ./nginx
+    container_name: docker-nginx-service
+    networks:
+      - app-network
     ports:
-      - "80:80"
+      - "80:80"   # Only this is exposed to the outside world
     depends_on:
       - frontend
       - users-service
       - status-service
+
+networks:
+  app-network:
+    driver: bridge

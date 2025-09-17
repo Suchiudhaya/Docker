@@ -5,12 +5,12 @@ function App() {
   const [status, setStatus] = useState({});
 
   useEffect(() => {
-    fetch('/users')
+    fetch('http://users-service:5001/users')
       .then(res => res.json())
       .then(data => setUsers(data))
       .catch(err => console.error(err));
 
-    fetch('/status')
+    fetch('http://status-service:5002/status')
       .then(res => res.json())
       .then(data => setStatus(data))
       .catch(err => console.error(err));

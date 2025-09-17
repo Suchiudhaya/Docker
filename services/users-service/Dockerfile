@@ -1,7 +1,5 @@
-FROM node:18
-WORKDIR /usr/src/app
-COPY package.json package-lock.json ./
-RUN npm install --production
-COPY . .
-EXPOSE 5001
-CMD ["node", "index.js"]
+FROM python:3.9-slim
+WORKDIR /app
+RUN pip install --no-cache-dir Flask==2.2.5
+COPY app.py .
+CMD ["python", "app.py"]

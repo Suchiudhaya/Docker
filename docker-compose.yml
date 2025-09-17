@@ -13,7 +13,7 @@ services:
 
   # Users Service
   users-service:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/services:users-v1
+    build: ./services/users-service
     container_name: docker-users-service
     networks:
       - app-network
@@ -22,7 +22,7 @@ services:
 
   # Status Service
   status-service:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/services:status-v1
+    build: ./services/status-service
     container_name: docker-status-service
     networks:
       - app-network

@@ -1,44 +1,39 @@
-version: "3.9"
+version: '3.9'
 
 services:
+  # Frontend
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_USERS_URL: http://users-service:5001
+        REACT_APP_STATUS_URL: http://status-service:5002
     container_name: docker-frontend
     networks:
       - app-network
-    ports:
-      - "80:80"
     depends_on:
       - users-service
       - status-service
+    ports:
+      - "80:80"
 
+  # Users Service
   users-service:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/users-service:users-v1
+    build: ./services/users-service
     container_name: docker-users-service
     networks:
       - app-network
     ports:
       - "5001:5001"
 
+  # Status Service
   status-service:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/status-service:status-v1
+    build: ./services/status-service
     container_name: docker-status-service
     networks:
       - app-network
     ports:
       - "5002:5002"
-
-  nginx-service:
-    build: ./nginx
-    container_name: docker-nginx-service
-    networks:
-      - app-network
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - users-service
-      - status-service
 
 networks:
   app-network:

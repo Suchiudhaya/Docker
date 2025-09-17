@@ -1,7 +1,8 @@
+version: '3.8'
+
 services:
-  # Frontend React App
   frontend:
-    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/frontend:v1
+    image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/frontend:frontend-v1
     container_name: docker-frontend
     networks:
       - app-network
@@ -9,26 +10,23 @@ services:
       - users-service
       - status-service
 
-  # Users Service
   users-service:
     image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/services:users-v1
     container_name: docker-users-service
     networks:
       - app-network
 
-  # Status Service
   status-service:
     image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/services:status-v1
     container_name: docker-status-service
     networks:
       - app-network
 
-  # Nginx Reverse Proxy
   nginx-service:
     image: 171961474458.dkr.ecr.us-east-1.amazonaws.com/nginx-service:nginx-v1
     container_name: docker-nginx-service
     ports:
-      - "80:80"   # Only expose Nginx, it routes traffic to others
+      - "80:80"
     networks:
       - app-network
     depends_on:

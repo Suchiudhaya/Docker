@@ -1,31 +1,47 @@
 services:
+  # Frontend React App
   frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "80:80"
+    build: ./frontend
+    container_name: docker-frontend
+    networks:
+      - app-network
+    expose:
+      - "80"   # expose internally, Nginx will access this
     depends_on:
       - users-service
       - status-service
 
+  # Users Service
   users-service:
-    build:
-      context: ./services/users-service
+    build: ./services/users-service
+    container_name: docker-users-service
+    networks:
+      - app-network
     ports:
       - "5001:5001"
 
+  # Status Service
   status-service:
-    build:
-      context: ./services/status-service
+    build: ./services/status-service
+    container_name: docker-status-service
+    networks:
+      - app-network
     ports:
       - "5002:5002"
 
+  # Nginx Reverse Proxy
   nginx-service:
-    build:
-      context: ./nginx
+    build: ./nginx
+    container_name: docker-nginx-service
+    networks:
+      - app-network
     ports:
-      - "80:80"
+      - "8080:80"  # avoid conflicts with host port 80
     depends_on:
       - frontend
       - users-service
       - status-service
+
+networks:
+  app-network:
+    driver: bridge

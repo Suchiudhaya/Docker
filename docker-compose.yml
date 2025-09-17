@@ -22,7 +22,7 @@ services:
 
   nginx-service:
     build:
-      context: ./nginx-service
+      context: ./nginx
     image: docker_nginx-service:latest
     ports:
       - "80:80"

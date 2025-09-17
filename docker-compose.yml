@@ -8,14 +8,14 @@ services:
 
   users-service:
     build:
-      context: ./users-service
+      context: ./services/users-service
     image: docker_users-service:latest
     expose:
       - "5001"
 
   status-service:
     build:
-      context: ./status-service
+      context: ./services/status-service
     image: docker_status-service:latest
     expose:
       - "5002"

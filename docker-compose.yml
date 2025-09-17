@@ -1,48 +1,33 @@
+version: "3.8"
+
 services:
-  # Frontend React + Nginx
   frontend:
-    build: ./frontend
-    container_name: docker-frontend
-    networks:
-      - app-network
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/frontend:frontend-v1
+    container_name: frontend
+    ports:
+      - "3000:80"
     depends_on:
       - users-service
       - status-service
 
-  # Users Service
   users-service:
-    build: ./services/users-service
-    container_name: docker-users-service
-    networks:
-      - app-network
-    ports:
-      - "5000:5000"
-
-  # Status Service
-  status-service:
-    build: ./services/status-service
-    container_name: docker-status-service
-    networks:
-      - app-network
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/services:users-v1
+    container_name: users-service
     ports:
       - "5001:5001"
 
-  # Nginx Reverse Proxy (serves frontend + routes APIs)
+  status-service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/services:status-v1
+    container_name: status-service
+    ports:
+      - "5002:5002"
+
   nginx-service:
-    image: nginx:alpine
-    container_name: docker-nginx-service
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./frontend/build:/usr/share/nginx/html:ro
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/nginx-service:nginx-v1
+    container_name: nginx-service
     ports:
       - "80:80"
     depends_on:
       - frontend
       - users-service
       - status-service
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge

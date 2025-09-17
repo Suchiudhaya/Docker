@@ -5,8 +5,8 @@ services:
     container_name: docker-frontend
     networks:
       - app-network
-    ports:
-      - "80:80"   # expose internally, Nginx will access this
+    expose:
+      - "80"   # only exposes internally to Docker network
     depends_on:
       - users-service
       - status-service
